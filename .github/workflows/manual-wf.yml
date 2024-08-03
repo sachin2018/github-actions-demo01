@@ -1,0 +1,45 @@
+name: Manual Trigger Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select the environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - Development
+          - Staging
+          - Production
+        default: Development
+      deploy_version:
+        description: 'Version to deploy'
+        required: true
+        type: string
+        default: 'latest'
+      run_tests:
+        description: 'Whether to run tests'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up environment
+        run: echo "Deploying to ${{ github.event.inputs.environment }} environment"
+
+      - name: Deploy
+        run: |
+          echo "Deploying version ${{ github.event.inputs.deploy_version }}"
+          if [ "${{ github.event.inputs.run_tests }}" = "true" ]; then
+            echo "Running tests"
+            # Insert test commands here
+          fi
+        env:
+          DEPLOY_ENVIRONMENT: ${{ github.event.inputs.environment }}
+          DEPLOY_VERSION: ${{ github.event.inputs.deploy_version }}
